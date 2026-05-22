@@ -1,0 +1,94 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("blog");
+const tagMap = new Map<string, number>();
+
+posts
+  .filter((p) => !p.data.draft)
+  .forEach((post) => {
+    post.data.tags.forEach((tag) => {
+      tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
+    });
+  });
+
+const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout>
+  <section>
+    <div class="px-4 lg:px-8 py-12 max-w-3xl mx-auto">
+      <h1 class="text-4xl tracking-tight text-base-900 text-balance font-medium">
+        Tags
+      </h1>
+      <p class="text-sm text-base-600 mt-2">
+        Browse posts by topic.
+      </p>
+
+      <div class="mt-6">
+        <div class="relative">
+          <svg
+            class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-base-400"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
+          </svg>
+          <input
+            type="text"
+            id="tag-search"
+            placeholder="Search tags..."
+            class="w-full pl-10 pr-4 py-2.5 bg-white rounded-full text-sm text-base-900
+              placeholder:text-base-400 border border-base-200
+              focus:outline-none focus:ring-2 focus:ring-base-300 focus:border-transparent
+              transition-all duration-200"
+          />
+        </div>
+      </div>
+
+      <div id="tags-grid" class="flex flex-wrap gap-2 mt-6">
+        {tags.map(([tag, count]) => (
+          <a
+            href={`/tags/${tag}`}
+            class="tag-item inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2
+              text-sm text-base-700 ring-1 ring-base-200
+              hover:bg-base-100 hover:text-base-900 transition-colors duration-200"
+            data-tag={tag.toLowerCase()}
+          >
+            <span>{tag}</span>
+            <span class="text-xs text-base-400">{count}</span>
+          </a>
+        ))}
+      </div>
+
+      {tags.length === 0 && (
+        <div class="bg-white rounded-3xl p-8 text-center mt-6">
+          <p class="text-sm text-base-500">No tags yet.</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const input = document.getElementById("tag-search") as HTMLInputElement;
+      const tagItems = document.querySelectorAll(".tag-item");
+
+      input?.addEventListener("input", () => {
+        const query = input.value.toLowerCase().trim();
+        tagItems.forEach((item) => {
+          const tag = item.getAttribute("data-tag") || "";
+          if (tag.includes(query)) {
+            (item as HTMLElement).style.display = "";
+          } else {
+            (item as HTMLElement).style.display = "none";
+          }
+        });
+      });
+    });
+  </script>
+</BaseLayout>

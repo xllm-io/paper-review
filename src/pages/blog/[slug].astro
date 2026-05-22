@@ -1,0 +1,134 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlogPostHeader from "@/components/blog/BlogPostHeader.astro";
+import TableOfContents from "@/components/blog/TableOfContents.astro";
+import BackToTopBottom from "@/components/blog/BackToTopBottom.astro";
+import { getCollection, render } from "astro:content";
+import "katex/dist/katex.min.css";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+---
+
+<BaseLayout>
+  <section>
+    <div class="px-4 lg:px-8 py-12 max-w-5xl mx-auto">
+      <a
+        href="/blog"
+        class="inline-flex items-center gap-1 text-xs text-base-500 hover:text-base-900 transition-colors mb-8"
+      >
+        <svg class="size-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to blog
+      </a>
+
+      <div class="flex gap-8">
+        <TableOfContents headings={headings} />
+
+        <article class="flex-1 min-w-0">
+          <div class="bg-white rounded-3xl p-4 lg:p-12">
+            <BlogPostHeader
+              title={post.data.title}
+              description={post.data.description}
+              date={post.data.date}
+              updatedDate={post.data.updatedDate}
+              tags={post.data.tags}
+              image={post.data.image}
+            />
+            <div class="prose prose-base max-w-none mt-8
+              prose-headings:text-base-900 prose-headings:tracking-tight
+              prose-h2:text-2xl prose-h2:font-medium prose-h2:mt-12 prose-h2:mb-4
+              prose-h3:text-lg prose-h3:font-medium prose-h3:mt-8 prose-h3:mb-3
+              prose-p:text-base-600 prose-p:text-sm
+              prose-a:text-blue-500 prose-a:no-underline hover:prose-a:text-base-900
+              prose-strong:text-base-900
+              prose-code:text-base-800 prose-code:bg-base-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:font-normal prose-code:before:content-none prose-code:after:content-none
+              prose-pre:rounded-none prose-pre:p-6 prose-pre:mt-0
+              prose-blockquote:border-base-300 prose-blockquote:text-base-600 prose-blockquote:italic
+              prose-img:rounded-2xl
+              prose-hr:border-base-200
+              prose-li:text-base-600 prose-li:text-sm
+              prose-ul:list-disc prose-ol:list-decimal
+              marker:text-base-400
+            ">
+              <Content />
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <BackToTopBottom />
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre").forEach((pre) => {
+        const code = pre.querySelector("code");
+        if (!code) return;
+
+        // Extract language from class (e.g., "language-typescript")
+        const langClass = Array.from(code.classList).find((c) =>
+          c.startsWith("language-")
+        );
+        const lang = langClass ? langClass.replace("language-", "") : "";
+
+        // Create wrapper
+        const wrapper = document.createElement("div");
+        wrapper.className = "code-block-wrapper";
+        pre.parentNode?.insertBefore(wrapper, pre);
+
+        // Create header
+        const header = document.createElement("div");
+        header.className = "code-block-header";
+
+        const langLabel = document.createElement("span");
+        langLabel.className = "code-block-lang";
+        langLabel.textContent = lang;
+
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "code-block-copy";
+        copyBtn.setAttribute("data-tooltip", "Copy");
+        copyBtn.innerHTML =
+          '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+        copyBtn.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(code.textContent || "");
+            copyBtn.setAttribute("data-tooltip", "Copied!");
+            copyBtn.innerHTML =
+              '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+            setTimeout(() => {
+              copyBtn.setAttribute("data-tooltip", "Copy");
+              copyBtn.innerHTML =
+                '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+            }, 2000);
+          } catch {
+            copyBtn.setAttribute("data-tooltip", "Failed");
+          }
+        });
+
+        header.appendChild(langLabel);
+        header.appendChild(copyBtn);
+        wrapper.appendChild(header);
+        wrapper.appendChild(pre);
+      });
+
+      // Wrap tables in scrollable container
+      document.querySelectorAll(".prose table").forEach((table) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "table-wrapper";
+        table.parentNode?.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      });
+    });
+  </script>
+</BaseLayout>

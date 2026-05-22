@@ -1,0 +1,64 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlogCard from "@/components/blog/BlogCard.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  const tagSet = new Set<string>();
+
+  posts
+    .filter((p) => !p.data.draft)
+    .forEach((post) => {
+      post.data.tags.forEach((tag) => tagSet.add(tag));
+    });
+
+  return Array.from(tagSet).map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts
+        .filter((p) => !p.data.draft && p.data.tags.includes(tag))
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout>
+  <section>
+    <div class="px-4 lg:px-8 py-12 max-w-3xl mx-auto">
+      <a
+        href="/tags"
+        class="inline-flex items-center gap-1 text-xs text-base-500 hover:text-base-900 transition-colors mb-4"
+      >
+        <svg class="size-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        All tags
+      </a>
+
+      <h1 class="text-4xl tracking-tight text-base-900 text-balance font-medium">
+        {tag}
+      </h1>
+      <p class="text-sm text-base-600 mt-2">
+        {posts.length} {posts.length === 1 ? "post" : "posts"} tagged with "{tag}"
+      </p>
+
+      <div class="flex flex-col gap-4 mt-8">
+        {posts.map((post) => (
+          <BlogCard
+            title={post.data.title}
+            description={post.data.description}
+            date={post.data.date}
+            tags={post.data.tags}
+            slug={post.id}
+            image={post.data.image}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

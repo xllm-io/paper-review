@@ -1,23 +1,80 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Hero from "@/components/landing/Hero.astro";
-import LogoCloud from "@/components/landing/LogoCloud.astro";
-import Work from "@/components/landing/Work.astro";
-import Howitworks from "@/components/landing/Howitworks.astro";
-import Services from "@/components/landing/Services.astro";
-import Testimonials from "@/components/landing/Testimonials.astro";
-import Pricing from "@/components/landing/Pricing.astro";
-import Faq from "@/components/landing/Faq.astro";
-import Cta from "@/components/global/Cta.astro";
+import BlogCard from "@/components/blog/BlogCard.astro";
+import { getCollection } from "astro:content";
+
+const allPosts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const recentPosts = allPosts.slice(0, 3);
+
+const tagMap = new Map<string, number>();
+allPosts.forEach((post) => {
+  post.data.tags.forEach((tag) => {
+    tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
+  });
+});
+const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
 ---
+
 <BaseLayout>
   <Hero />
-  <LogoCloud />
-  <Work />
-  <Howitworks />
-  <Services />
-  <Testimonials />
-  <Pricing />
-  <Faq />
-  <Cta />
+
+  {/* Recent Posts */}
+  <section>
+    <div class="px-4 lg:px-8 py-12 max-w-3xl mx-auto">
+      <h2 class="text-4xl tracking-tight text-base-900 text-balance font-medium">
+        Recent posts
+      </h2>
+      <div class="flex flex-col gap-4 mt-8">
+        {recentPosts.map((post) => (
+          <BlogCard
+            title={post.data.title}
+            description={post.data.description}
+            date={post.data.date}
+            tags={post.data.tags}
+            slug={post.id}
+            image={post.data.image}
+          />
+        ))}
+      </div>
+      {allPosts.length > 3 && (
+        <div class="mt-8 text-center">
+          <a
+            href="/blog"
+            class="inline-flex items-center gap-1 text-sm text-base-500 hover:text-base-900 transition-colors"
+          >
+            View all posts
+            <svg class="size-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  {/* Browse by Topic */}
+  {tags.length > 0 && (
+    <section>
+      <div class="px-4 lg:px-8 py-12 max-w-3xl mx-auto">
+        <h2 class="text-4xl tracking-tight text-base-900 text-balance font-medium">
+          Browse by topic
+        </h2>
+        <div class="flex flex-wrap gap-2 mt-8">
+          {tags.map(([tag, count]) => (
+            <a
+              href={`/tags/${tag}`}
+              class="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm text-base-700 ring-1 ring-base-200 hover:bg-base-100 hover:text-base-900 transition-colors duration-200"
+            >
+              <span>{tag}</span>
+              <span class="text-xs text-base-400">{count}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
 </BaseLayout>

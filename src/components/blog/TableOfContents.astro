@@ -1,0 +1,294 @@
+---
+interface Props {
+  headings: { depth: number; slug: string; text: string }[];
+}
+const { headings } = Astro.props;
+const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+
+{tocHeadings.length > 0 && (
+  <aside
+    id="toc-aside"
+    class="hidden lg:block shrink-0 transition-[width] duration-300 ease-in-out"
+    style="width: 14rem;"
+  >
+    <nav class="sticky top-24">
+      <!-- Expanded card -->
+      <div id="toc-expanded" class="bg-white rounded-2xl overflow-hidden transition-all duration-300 ease-in-out">
+        <button
+          id="toc-collapse-btn"
+          class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-base-50 transition-colors"
+          aria-label="Collapse table of contents"
+        >
+          <span class="text-xs font-semibold uppercase text-base-900 tracking-wider">
+            文章目录
+          </span>
+          <svg
+            id="toc-chevron"
+            class="size-3.5 text-base-400 transition-transform duration-300 ease-in-out"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+        <div
+          id="toc-list-wrapper"
+          class="overflow-hidden transition-all duration-300 ease-in-out origin-top"
+          style="max-height: 2000px; opacity: 1;"
+        >
+          <div class="px-4 pb-3">
+            <ul class="space-y-0.5" role="list">
+              {tocHeadings.map((heading) => (
+                <li>
+                  <a
+                    href={`#${heading.slug}`}
+                    class:list={[
+                      "block text-xs py-1 pl-3 -ml-3 border-l-2 border-transparent transition-all duration-200 toc-link",
+                      heading.depth === 3
+                        ? "ml-0 text-base-400 hover:text-base-700"
+                        : "text-base-600 hover:text-base-900 font-medium",
+                    ]}
+                    data-heading-id={heading.slug}
+                  >
+                    {heading.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapsed toggle button -->
+      <button
+        id="toc-expand-btn"
+        class="hidden bg-white rounded-lg p-2 hover:bg-base-50 transition-all duration-200 cursor-pointer"
+        aria-label="Expand table of contents"
+      >
+        <svg
+          class="size-4 text-base-600"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </nav>
+  </aside>
+)}
+
+{tocHeadings.length > 0 && (
+  <div class="lg:hidden fixed bottom-20 right-4 z-40">
+    <button
+      id="toc-mobile-toggle"
+      class="bg-white rounded-full p-3 shadow-lg outline outline-base-100 hover:bg-base-50 transition-all duration-200 active:scale-95"
+      aria-label="Toggle table of contents"
+      aria-expanded="false"
+    >
+      <svg
+        id="toc-mobile-icon"
+        class="size-5 text-base-700 transition-transform duration-300 ease-in-out"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+      </svg>
+    </button>
+    <div
+      id="toc-mobile-panel"
+      class="absolute bottom-14 right-0 w-64 max-h-80 overflow-y-auto bg-white rounded-2xl shadow-lg outline outline-base-100 origin-bottom-right transition-all duration-300 ease-in-out"
+      style="opacity: 0; transform: scale(0.9) translateY(8px); pointer-events: none;"
+      role="navigation"
+      aria-label="Table of contents"
+    >
+      <div class="p-4">
+        <h2 class="text-xs font-semibold uppercase text-base-900 tracking-wider mb-2">
+          文章目录
+        </h2>
+        <ul class="space-y-0.5" role="list">
+          {tocHeadings.map((heading) => (
+            <li>
+              <a
+                href={`#${heading.slug}`}
+                class:list={[
+                  "block text-xs py-1 pl-3 -ml-3 border-l-2 border-transparent transition-all duration-200 toc-link",
+                  heading.depth === 3
+                    ? "ml-0 text-base-400 hover:text-base-700"
+                    : "text-base-600 hover:text-base-900 font-medium",
+                ]}
+                data-heading-id={heading.slug}
+              >
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+)}
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // --- Desktop TOC collapse ---
+    const collapseBtn = document.getElementById("toc-collapse-btn");
+    const expandBtn = document.getElementById("toc-expand-btn");
+    const tocWrapper = document.getElementById("toc-list-wrapper");
+    const tocExpanded = document.getElementById("toc-expanded");
+    const tocAside = document.getElementById("toc-aside");
+    const chevron = document.getElementById("toc-chevron");
+    let collapsed = false;
+
+    function setCollapsed(value: boolean) {
+      collapsed = value;
+
+      // Toggle sidebar width
+      if (tocAside) {
+        tocAside.style.width = collapsed ? "3rem" : "14rem";
+      }
+
+      // Hide expanded card, show expand button
+      if (tocExpanded) {
+        tocExpanded.style.opacity = collapsed ? "0" : "1";
+        tocExpanded.style.pointerEvents = collapsed ? "none" : "";
+        tocExpanded.style.position = collapsed ? "absolute" : "";
+        tocExpanded.style.visibility = collapsed ? "hidden" : "";
+      }
+      if (expandBtn) {
+        expandBtn.style.display = collapsed ? "flex" : "none";
+        expandBtn.style.alignItems = "center";
+        expandBtn.style.justifyContent = "center";
+        expandBtn.style.width = "100%";
+      }
+
+      // Collapse list content
+      if (tocWrapper) {
+        tocWrapper.style.maxHeight = collapsed ? "0px" : "2000px";
+        tocWrapper.style.opacity = collapsed ? "0" : "1";
+      }
+
+      // Rotate chevron
+      if (chevron) {
+        chevron.style.transform = collapsed ? "rotate(180deg)" : "rotate(0deg)";
+      }
+
+      collapseBtn?.setAttribute(
+        "aria-label",
+        collapsed ? "Expand table of contents" : "Collapse table of contents"
+      );
+    }
+
+    collapseBtn?.addEventListener("click", () => setCollapsed(true));
+    expandBtn?.addEventListener("click", () => setCollapsed(false));
+
+    // --- Mobile TOC toggle ---
+    const mobileToggle = document.getElementById("toc-mobile-toggle");
+    const mobilePanel = document.getElementById("toc-mobile-panel");
+    const mobileIcon = document.getElementById("toc-mobile-icon");
+    let mobileOpen = false;
+
+    function openMobilePanel() {
+      mobileOpen = true;
+      if (mobilePanel) {
+        mobilePanel.style.opacity = "1";
+        mobilePanel.style.transform = "scale(1) translateY(0)";
+        mobilePanel.style.pointerEvents = "auto";
+      }
+      if (mobileIcon) {
+        mobileIcon.style.transform = "rotate(90deg)";
+      }
+      mobileToggle?.setAttribute("aria-expanded", "true");
+    }
+
+    function closeMobilePanel() {
+      mobileOpen = false;
+      if (mobilePanel) {
+        mobilePanel.style.opacity = "0";
+        mobilePanel.style.transform = "scale(0.9) translateY(8px)";
+        mobilePanel.style.pointerEvents = "none";
+      }
+      if (mobileIcon) {
+        mobileIcon.style.transform = "rotate(0deg)";
+      }
+      mobileToggle?.setAttribute("aria-expanded", "false");
+    }
+
+    mobileToggle?.addEventListener("click", () => {
+      if (mobileOpen) {
+        closeMobilePanel();
+      } else {
+        openMobilePanel();
+      }
+    });
+
+    // Close mobile TOC when a link is clicked
+    mobilePanel?.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        closeMobilePanel();
+      });
+    });
+
+    // Close mobile TOC on outside click
+    document.addEventListener("click", (e) => {
+      if (
+        mobileOpen &&
+        !mobileToggle?.contains(e.target as Node) &&
+        !mobilePanel?.contains(e.target as Node)
+      ) {
+        closeMobilePanel();
+      }
+    });
+
+    // --- Active heading highlighting (IntersectionObserver) ---
+    const tocLinks = document.querySelectorAll(".toc-link");
+    const headingIds = Array.from(tocLinks).map(
+      (link) => link.getAttribute("data-heading-id")!
+    );
+
+    function setActiveLink(activeLink: Element) {
+      tocLinks.forEach((l) => {
+        l.classList.remove(
+          "text-base-900",
+          "font-semibold",
+          "border-base-900",
+          "bg-base-50"
+        );
+        l.classList.add("border-transparent");
+      });
+      activeLink.classList.remove("border-transparent");
+      activeLink.classList.add(
+        "text-base-900",
+        "font-semibold",
+        "border-base-900",
+        "bg-base-50"
+      );
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            const link = document.querySelector(`[data-heading-id="${id}"]`);
+            if (link) {
+              setActiveLink(link);
+            }
+          }
+        });
+      },
+      { rootMargin: "-80px 0px -60% 0px", threshold: 0 }
+    );
+
+    headingIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  });
+</script>

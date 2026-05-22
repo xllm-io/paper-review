@@ -1,0 +1,62 @@
+---
+// No props needed -- purely client-side behavior
+---
+
+<div class="fixed bottom-20 left-4 z-40 flex flex-col gap-2">
+  <button
+    id="back-to-top"
+    class="hidden bg-white rounded-full p-2.5 shadow-lg outline outline-base-100 hover:bg-base-50 transition-all duration-200"
+    aria-label="Back to top"
+  >
+    <svg class="size-4 text-base-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+    </svg>
+  </button>
+  <button
+    id="back-to-bottom"
+    class="hidden bg-white rounded-full p-2.5 shadow-lg outline outline-base-100 hover:bg-base-50 transition-all duration-200"
+    aria-label="Back to bottom"
+  >
+    <svg class="size-4 text-base-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const toTop = document.getElementById("back-to-top");
+    const toBottom = document.getElementById("back-to-bottom");
+    if (!toTop || !toBottom) return;
+
+    const showThreshold = 400;
+
+    const updateVisibility = () => {
+      const scrollY = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+
+      if (scrollY > showThreshold) {
+        toTop.classList.remove("hidden");
+      } else {
+        toTop.classList.add("hidden");
+      }
+
+      if (scrollY < maxScroll - showThreshold) {
+        toBottom.classList.remove("hidden");
+      } else {
+        toBottom.classList.add("hidden");
+      }
+    };
+
+    window.addEventListener("scroll", updateVisibility, { passive: true });
+    updateVisibility();
+
+    toTop.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    toBottom.addEventListener("click", () => {
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+    });
+  });
+</script>
