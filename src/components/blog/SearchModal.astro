@@ -1,3 +1,7 @@
+---
+const base = import.meta.env.BASE_URL;
+---
+
 <!-- Search Modal -->
 <div
   id="search-modal"
@@ -5,6 +9,7 @@
   role="dialog"
   aria-modal="true"
   aria-label="Search articles"
+  data-base={base}
 >
   <!-- Backdrop -->
   <div
@@ -92,6 +97,7 @@
     const resultsContainer = document.getElementById("search-results");
     const emptyState = document.getElementById("search-empty");
     const noResults = document.getElementById("search-no-results");
+    const baseUrl = modal?.getAttribute("data-base") || "/";
 
     let posts: { title: string; description: string; tags: string[]; date: string; slug: string }[] = [];
     let loaded = false;
@@ -100,7 +106,7 @@
     async function loadPosts() {
       if (loaded) return;
       try {
-        const res = await fetch("/api/search.json");
+        const res = await fetch(`${baseUrl}api/search.json`);
         posts = await res.json();
         loaded = true;
       } catch {
@@ -164,7 +170,7 @@
 
       matches.forEach((post, i) => {
         const item = document.createElement("a");
-        item.href = `/blog/${post.slug}`;
+        item.href = `${baseUrl}blog/${post.slug}`;
         item.className = "search-result-item block px-5 py-3 hover:bg-base-50/80 transition-colors border-b border-base-100/60 last:border-b-0";
         if (i === 0) item.classList.add("bg-base-50/80");
 
