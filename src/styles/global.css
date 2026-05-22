@@ -105,29 +105,22 @@ pre code::after {
 }
 
 /* KaTeX math formula styling */
-.katex-display {
+.math-wrapper {
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0.5rem 0;
+  -webkit-overflow-scrolling: touch;
   max-width: 100%;
+  padding: 0.5rem 0;
 }
 
-.katex-display > .katex {
-  white-space: normal;
-  text-align: center;
+.math-wrapper .katex-display {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
 }
 
 .katex {
   font-size: 1.1em;
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-.katex-html {
-  overflow-x: auto;
-  overflow-y: hidden;
-  max-width: 100%;
 }
 
 .katex-error {

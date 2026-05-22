@@ -10,7 +10,7 @@ export default defineConfig({
   },
   markdown: {
     remarkPlugins: [remarkMath],
-    rehypePlugins: [rehypeKatex],
+    rehypePlugins: [[rehypeKatex, { throwOnError: false, trust: true }]],
     shikiConfig: {
       theme: "one-dark-pro",
     },

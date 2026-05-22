@@ -44,7 +44,7 @@ const { Content, headings } = await render(post);
               tags={post.data.tags}
               image={post.data.image}
             />
-            <div class="prose prose-base max-w-none mt-8
+            <div class="prose prose-base max-w-none mt-8 overflow-x-hidden
               prose-headings:text-base-900 prose-headings:tracking-tight
               prose-h2:text-2xl prose-h2:font-medium prose-h2:mt-12 prose-h2:mb-4
               prose-h3:text-lg prose-h3:font-medium prose-h3:mt-8 prose-h3:mb-3
@@ -128,6 +128,14 @@ const { Content, headings } = await render(post);
         wrapper.className = "table-wrapper";
         table.parentNode?.insertBefore(wrapper, table);
         wrapper.appendChild(table);
+      });
+
+      // Wrap KaTeX display formulas in scrollable container
+      document.querySelectorAll(".prose .katex-display").forEach((math) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "math-wrapper";
+        math.parentNode?.insertBefore(wrapper, math);
+        wrapper.appendChild(math);
       });
     });
   </script>
