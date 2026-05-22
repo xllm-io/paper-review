@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.1",
-    "@astrolib/seo": "^1.0.0-beta.8",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
-    "astro": "^6.0.5",
+    "@xllm-io/seo": "^0.0.1",
+    "astro": "^6.3.7",
     "katex": "^0.16.47",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
