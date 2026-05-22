@@ -140,3 +140,42 @@ pre code::after {
   width: 100%;
   margin: 0;
 }
+
+/* Search result line clamp */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Search panel entrance animation */
+.search-panel-enter {
+  animation: search-panel-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes search-panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Search input focus glow */
+#search-input:focus {
+  caret-color: var(--color-base-600);
+}
+
+/* Backdrop fade-in */
+#search-modal:not(.hidden) #search-backdrop {
+  animation: backdrop-in 0.2s ease-out;
+}
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

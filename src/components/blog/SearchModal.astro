@@ -1,0 +1,260 @@
+<!-- Search Modal -->
+<div
+  id="search-modal"
+  class="fixed inset-0 z-[60] hidden items-start justify-center pt-[12vh] sm:pt-[15vh]"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Search articles"
+>
+  <!-- Backdrop -->
+  <div
+    id="search-backdrop"
+    class="absolute inset-0 bg-base-950/50 backdrop-blur-md"
+  ></div>
+
+  <!-- Search Panel -->
+  <div class="relative w-full max-w-lg mx-4 bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] ring-1 ring-base-200/60 overflow-hidden search-panel-enter">
+    <!-- Search Input -->
+    <div class="flex items-center gap-3 px-5 py-3.5">
+      <svg
+        class="size-[18px] text-base-400 shrink-0"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
+      </svg>
+      <input
+        id="search-input"
+        type="text"
+        placeholder="Search articles..."
+        class="flex-1 text-base text-base-900 placeholder:text-base-400 outline-none bg-transparent font-medium"
+        autocomplete="off"
+      />
+      <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium text-base-400 bg-base-100/80 rounded-md border border-base-200/80">
+        ESC
+      </kbd>
+    </div>
+
+    <!-- Divider -->
+    <div class="h-px bg-gradient-to-r from-transparent via-base-200 to-transparent"></div>
+
+    <!-- Results -->
+    <div
+      id="search-results"
+      class="max-h-80 overflow-y-auto overscroll-contain"
+    >
+      <!-- Empty state -->
+      <div id="search-empty" class="px-4 py-10 text-center">
+        <svg class="size-8 mx-auto text-base-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
+        </svg>
+        <p class="text-sm text-base-400">Type to search articles...</p>
+      </div>
+      <!-- No results -->
+      <div id="search-no-results" class="px-4 py-10 text-center hidden">
+        <svg class="size-8 mx-auto text-base-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
+        </svg>
+        <p class="text-sm text-base-400">No articles found.</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex items-center justify-between px-4 py-2 bg-base-50/60 border-t border-base-100">
+      <div class="flex items-center gap-3 text-[11px] text-base-400">
+        <span class="inline-flex items-center gap-1">
+          <kbd class="inline-flex items-center justify-center size-5 text-[10px] font-medium bg-white rounded border border-base-200 shadow-sm text-base-500">&uarr;</kbd>
+          <kbd class="inline-flex items-center justify-center size-5 text-[10px] font-medium bg-white rounded border border-base-200 shadow-sm text-base-500">&darr;</kbd>
+          <span class="ml-0.5">Navigate</span>
+        </span>
+        <span class="inline-flex items-center gap-1">
+          <kbd class="inline-flex items-center justify-center h-5 px-1.5 text-[10px] font-medium bg-white rounded border border-base-200 shadow-sm text-base-500">&crarr;</kbd>
+          <span class="ml-0.5">Open</span>
+        </span>
+      </div>
+      <span class="inline-flex items-center gap-1 text-[11px] text-base-400">
+        <kbd class="inline-flex items-center justify-center h-5 px-1.5 text-[10px] font-medium bg-white rounded border border-base-200 shadow-sm text-base-500">Esc</kbd>
+        <span class="ml-0.5">Close</span>
+      </span>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("search-modal");
+    const backdrop = document.getElementById("search-backdrop");
+    const input = document.getElementById("search-input") as HTMLInputElement;
+    const resultsContainer = document.getElementById("search-results");
+    const emptyState = document.getElementById("search-empty");
+    const noResults = document.getElementById("search-no-results");
+
+    let posts: { title: string; description: string; tags: string[]; date: string; slug: string }[] = [];
+    let loaded = false;
+    let activeIndex = -1;
+
+    async function loadPosts() {
+      if (loaded) return;
+      try {
+        const res = await fetch("/api/search.json");
+        posts = await res.json();
+        loaded = true;
+      } catch {
+        posts = [];
+      }
+    }
+
+    function openModal() {
+      modal?.classList.remove("hidden");
+      modal?.classList.add("flex");
+      setTimeout(() => input?.focus(), 50);
+      loadPosts();
+    }
+
+    function closeModal() {
+      modal?.classList.add("hidden");
+      modal?.classList.remove("flex");
+      if (input) input.value = "";
+      clearResults();
+    }
+
+    function clearResults() {
+      if (!resultsContainer) return;
+      resultsContainer.querySelectorAll(".search-result-item").forEach((el) => el.remove());
+      emptyState?.classList.remove("hidden");
+      noResults?.classList.add("hidden");
+      activeIndex = -1;
+    }
+
+    function renderResults(query: string) {
+      if (!resultsContainer || !emptyState || !noResults) return;
+
+      // Clear previous results
+      resultsContainer.querySelectorAll(".search-result-item").forEach((el) => el.remove());
+
+      if (!query.trim()) {
+        emptyState.classList.remove("hidden");
+        noResults.classList.add("hidden");
+        activeIndex = -1;
+        return;
+      }
+
+      const q = query.toLowerCase().trim();
+      const matches = posts.filter(
+        (post) =>
+          post.title.toLowerCase().includes(q) ||
+          post.description.toLowerCase().includes(q) ||
+          post.tags.some((tag) => tag.toLowerCase().includes(q))
+      );
+
+      emptyState.classList.add("hidden");
+
+      if (matches.length === 0) {
+        noResults.classList.remove("hidden");
+        activeIndex = -1;
+        return;
+      }
+
+      noResults.classList.add("hidden");
+      activeIndex = 0;
+
+      matches.forEach((post, i) => {
+        const item = document.createElement("a");
+        item.href = `/blog/${post.slug}`;
+        item.className = "search-result-item block px-5 py-3 hover:bg-base-50/80 transition-colors border-b border-base-100/60 last:border-b-0";
+        if (i === 0) item.classList.add("bg-base-50/80");
+
+        const title = document.createElement("div");
+        title.className = "text-sm font-medium text-base-800 truncate";
+        title.textContent = post.title;
+
+        const desc = document.createElement("div");
+        desc.className = "text-xs text-base-500 mt-0.5 line-clamp-1 leading-relaxed";
+        desc.textContent = post.description;
+
+        const meta = document.createElement("div");
+        meta.className = "flex items-center gap-1.5 mt-1.5 flex-wrap";
+        const dateSpan = document.createElement("span");
+        dateSpan.className = "text-[10px] text-base-400 tabular-nums";
+        dateSpan.textContent = post.date;
+        meta.appendChild(dateSpan);
+        post.tags.forEach((tag) => {
+          const tagSpan = document.createElement("span");
+          tagSpan.className = "text-[10px] px-1.5 py-0.5 rounded-md bg-base-100 text-base-500 font-medium";
+          tagSpan.textContent = tag;
+          meta.appendChild(tagSpan);
+        });
+
+        item.appendChild(title);
+        item.appendChild(desc);
+        item.appendChild(meta);
+        resultsContainer.appendChild(item);
+      });
+
+      updateActiveItem();
+    }
+
+    function updateActiveItem() {
+      const items = resultsContainer?.querySelectorAll(".search-result-item");
+      if (!items) return;
+      items.forEach((item, i) => {
+        if (i === activeIndex) {
+          item.classList.add("bg-base-50/80");
+          (item as HTMLElement).scrollIntoView({ block: "nearest" });
+        } else {
+          item.classList.remove("bg-base-50/80");
+        }
+      });
+    }
+
+    // Open/close triggers
+    document.addEventListener("open-search", () => openModal());
+
+    backdrop?.addEventListener("click", () => closeModal());
+
+    input?.addEventListener("input", () => {
+      renderResults(input.value);
+    });
+
+    // Keyboard navigation
+    document.addEventListener("keydown", (e) => {
+      // Cmd/Ctrl + K to open
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        openModal();
+        return;
+      }
+
+      if (modal?.classList.contains("hidden")) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeModal();
+        return;
+      }
+
+      const items = resultsContainer?.querySelectorAll(".search-result-item");
+      if (!items || items.length === 0) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, items.length - 1);
+        updateActiveItem();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        updateActiveItem();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const activeItem = items[activeIndex] as HTMLAnchorElement;
+        if (activeItem?.href) {
+          window.location.href = activeItem.href;
+        }
+      }
+    });
+  });
+</script>

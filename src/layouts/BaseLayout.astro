@@ -2,6 +2,7 @@
 import BaseHead from "@/components/BaseHead.astro";
 import Navigation from "@/components/global/Navigation.astro";
 import Footer from "@/components/global/Footer.astro";
+import SearchModal from "@/components/blog/SearchModal.astro";
 ---
 
 <html lang="en">
@@ -11,6 +12,7 @@ import Footer from "@/components/global/Footer.astro";
   <body
     class="bg-base-50 flex flex-col min-h-svh mx-auto 2xl:max-w-screen-xl relative"
   >
+    <SearchModal />
     <Navigation />
     <main class="grow"><slot /></main>
     <Footer />

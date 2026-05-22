@@ -10,6 +10,16 @@ import Logo from "@/components/assets/Logo.astro";
       <Logo class="h-8" />
     </a>
     <div class="flex items-center gap-2 text-xs font-medium">
+      <button
+        id="search-trigger"
+        class="text-base-500 hover:text-base-900 transition-colors p-1"
+        aria-label="Search articles"
+      >
+        <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
+        </svg>
+      </button>
       <a
         href="/blog"
         class="text-base-500 hover:text-base-900 transition-colors"
@@ -31,3 +41,11 @@ import Logo from "@/components/assets/Logo.astro";
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("search-trigger")?.addEventListener("click", () => {
+      document.dispatchEvent(new CustomEvent("open-search"));
+    });
+  });
+</script>
