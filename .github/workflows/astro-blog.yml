@@ -73,9 +73,14 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build with Astro
         run: |
+          BASE_PATH="${{ steps.pages.outputs.base_path }}"
+          case "$BASE_PATH" in
+            */) ;;
+            *) BASE_PATH="${BASE_PATH}/" ;;
+          esac
           ${{ steps.detect-package-manager.outputs.runner }} astro build \
             --site "${{ steps.pages.outputs.origin }}" \
-            --base "${{ steps.pages.outputs.base_path }}"
+            --base "$BASE_PATH"
         working-directory: ${{ env.BUILD_PATH }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
