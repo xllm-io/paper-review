@@ -35,4 +35,5 @@ pnpm-debug.log*
 Thumbs.db
 
 .astro/
+.astro/*
 package-lock.json
