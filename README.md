@@ -60,6 +60,34 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`    | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro --help` | Get help using the Astro CLI                     |
 
+## Custom content repository
+
+This project supports loading blog Markdown from a private repository at build time while keeping the site rendering logic unchanged (`getCollection("blog")`).
+
+### Local development
+
+- Default behavior (no env var): loads from `./src/content/blog`
+- Override content directory:
+
+```bash
+BLOG_CONTENT_DIR=/absolute/path/to/custom-blog-content npm run build
+```
+
+`BLOG_CONTENT_DIR` must point to a directory containing the blog markdown files (and related assets such as `figures/` if used).
+
+### CI / GitHub Actions
+
+The Pages workflow can optionally pull blog content from a private repo:
+
+- Repository variable `BLOG_CONTENT_REPO` (format: `owner/repo`)
+- Optional repository variable `CUSTOM_CONTENT_REPO_REF` (branch/tag/SHA)
+- Repository secret `CUSTOM_CONTENT_REPO_TOKEN` (PAT or deploy token with read access to the private content repo)
+
+If these are configured, CI checks out the private repo and sets `BLOG_CONTENT_DIR` for Astro build.  
+If not configured, CI falls back to `./src/content/blog`.
+
+> Note: private source markdown can be kept non-public, but generated website pages are still publicly accessible after deployment.
+
 ## Want to learn more?
 
 Feel free to check Lexington's [documentation](https://lexingtonthemes.com/documentation/quick-start/)
