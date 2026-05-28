@@ -77,6 +77,11 @@ jobs:
         working-directory: ${{ env.BUILD_PATH }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Show Info
+        id: show-info
+        run: |
+          echo "${{ vars.CUSTOM_CONTENT_REPO }}"
+          echo "${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}"
       - name: Checkout private blog content
         env:
           custom_token: ${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}
