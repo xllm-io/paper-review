@@ -31,8 +31,7 @@ concurrency:
 env:
   BUILD_PATH: "." # default value when not using subfolders
   DEFAULT_BLOG_CONTENT_DIR: "./src/content/blog"
-  CUSTOM_CONTENT_REPO: ${{ vars.CUSTOM_CONTENT_REPO || vars.BLOG_CONTENT_REPO }}
-  CUSTOM_CONTENT_REPO_REF: ${{ vars.CUSTOM_CONTENT_REPO_REF }}
+  CUSTOM_CONTENT_REPO: ${{ vars.CUSTOM_CONTENT_REPO }}
   CUSTOM_CONTENT_REPO_TOKEN: ${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}
   # BUILD_PATH: subfolder
 
@@ -51,7 +50,6 @@ jobs:
             echo "command=install" >> $GITHUB_OUTPUT
             echo "runner=yarn" >> $GITHUB_OUTPUT
             echo "lockfile=yarn.lock" >> $GITHUB_OUTPUT
-            echo "repo: ${{ vars.CUSTOM_CONTENT_REPO }}"
             exit 0
           elif [ -f "${{ github.workspace }}/package.json" ]; then
             echo "manager=npm" >> $GITHUB_OUTPUT
@@ -85,7 +83,6 @@ jobs:
         with:
           repository: ${{ env.CUSTOM_CONTENT_REPO }}
           token: ${{ env.CUSTOM_CONTENT_REPO_TOKEN }}
-          ref: ${{ env.CUSTOM_CONTENT_REPO_REF }}
           path: papers
       - name: Resolve blog content directory
         id: resolve-blog-content
