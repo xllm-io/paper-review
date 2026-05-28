@@ -85,7 +85,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: xllm-io/papers
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}
           path: papers
       - name: Resolve blog content directory
         id: resolve-blog-content
