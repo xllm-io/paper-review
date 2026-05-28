@@ -60,7 +60,7 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`    | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro --help` | Get help using the Astro CLI                     |
 
-## Private blog content repository
+## Custom content repository
 
 This project supports loading blog Markdown from a private repository at build time while keeping the site rendering logic unchanged (`getCollection("blog")`).
 
@@ -70,7 +70,7 @@ This project supports loading blog Markdown from a private repository at build t
 - Override content directory:
 
 ```bash
-BLOG_CONTENT_DIR=/absolute/path/to/private-blog-content npm run build
+BLOG_CONTENT_DIR=/absolute/path/to/custom-blog-content npm run build
 ```
 
 `BLOG_CONTENT_DIR` must point to a directory containing the blog markdown files (and related assets such as `figures/` if used).
@@ -80,9 +80,8 @@ BLOG_CONTENT_DIR=/absolute/path/to/private-blog-content npm run build
 The Pages workflow can optionally pull blog content from a private repo:
 
 - Repository variable `BLOG_CONTENT_REPO` (format: `owner/repo`)
-- Optional repository variable `BLOG_CONTENT_REPO_REF` (branch/tag/SHA)
-- Optional repository variable `BLOG_CONTENT_REPO_PATH` (subdirectory inside private repo; defaults to repo root)
-- Repository secret `BLOG_CONTENT_REPO_TOKEN` (PAT or deploy token with read access to the private content repo)
+- Optional repository variable `CUSTOM_CONTENT_REPO_REF` (branch/tag/SHA)
+- Repository secret `CUSTOM_CONTENT_REPO_TOKEN` (PAT or deploy token with read access to the private content repo)
 
 If these are configured, CI checks out the private repo and sets `BLOG_CONTENT_DIR` for Astro build.  
 If not configured, CI falls back to `./src/content/blog`.
