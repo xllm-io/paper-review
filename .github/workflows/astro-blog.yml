@@ -78,7 +78,7 @@ jobs:
       - name: Checkout private blog content
         env:
           custom_token: ${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}
-        if: ${{ vars.BLOG_CONTENT_REPO != '' && env.custom_token != '' }}
+        if: ${{ vars.CUSTOM_CONTENT_REPO != '' && env.custom_token != '' }}
         uses: actions/checkout@v6
         with:
           repository: ${{ vars.CUSTOM_CONTENT_REPO }}
@@ -86,8 +86,10 @@ jobs:
           path: papers
       - name: Resolve blog content directory
         id: resolve-blog-content
+        env:
+          custom_repo: ${{ vars.CUSTOM_CONTENT_REPO }}
         run: |
-          if [ -n "${{ vars.CUSTOM_CONTENT_REPO }}" ]; then
+          if [ -n "${{ env.custom_repo }}" ]; then
             BLOG_CONTENT_DIR="${{ github.workspace }}/papers/docs"
           else
             BLOG_CONTENT_DIR="${{ github.workspace }}/${{ env.DEFAULT_BLOG_CONTENT_DIR }}"
