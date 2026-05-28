@@ -76,7 +76,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout private blog content
-        if: ${{ vars.CUSTOM_CONTENT_REPO != '' && secrets.CUSTOM_CONTENT_REPO_TOKEN != '' }}
+        env:
+          custom_token: ${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}
+        if: ${{ vars.BLOG_CONTENT_REPO != '' && env.custom_token != '' }}
         uses: actions/checkout@v6
         with:
           repository: ${{ vars.CUSTOM_CONTENT_REPO }}
