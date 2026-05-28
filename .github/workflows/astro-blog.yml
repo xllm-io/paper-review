@@ -89,6 +89,8 @@ jobs:
         env:
           custom_repo: ${{ vars.CUSTOM_CONTENT_REPO }}
         run: |
+          ss="${{ env.custom_repo }}"
+          echo "xxx $ss"
           if [[ -n "${{ env.custom_repo }}" ]]; then
             BLOG_CONTENT_DIR="${{ github.workspace }}/papers/docs"
           else
