@@ -79,7 +79,7 @@ jobs:
         if: ${{ vars.CUSTOM_CONTENT_REPO != '' && secrets.CUSTOM_CONTENT_REPO_TOKEN != '' }}
         uses: actions/checkout@v6
         with:
-          repository: xllm-io/papers
+          repository: ${{ vars.CUSTOM_CONTENT_REPO }}
           token: ${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}
           path: papers
       - name: Resolve blog content directory
