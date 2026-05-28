@@ -6,7 +6,7 @@ import re
 import sys
 from pathlib import Path
 
-BLOG_DIR = Path("src/content/blog")
+BLOG_DIR = Path(os.getenv("BLOG_CONTENT_DIR", "src/content/blog"))
 
 # Required frontmatter fields
 REQUIRED_FIELDS = ["title", "description", "date"]
