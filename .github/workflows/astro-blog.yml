@@ -30,6 +30,7 @@ concurrency:
 
 env:
   BUILD_PATH: "." # default value when not using subfolders
+  DEFAULT_BLOG_CONTENT_DIR: "./src/content/blog"
   # BUILD_PATH: subfolder
 
 jobs:
@@ -74,6 +75,28 @@ jobs:
         working-directory: ${{ env.BUILD_PATH }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout private blog content
+        env:
+          custom_token: ${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}
+        if: ${{ vars.BLOG_CONTENT_REPO != '' && env.custom_token != '' }}
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ vars.CUSTOM_CONTENT_REPO }}
+          token: ${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}
+          path: papers
+      - name: Resolve blog content directory
+        id: resolve-blog-content
+        run: |
+          if [ -n "${{ vars.CUSTOM_CONTENT_REPO }}" ]; then
+            BLOG_CONTENT_DIR="${{ github.workspace }}/papers/docs"
+          else
+            BLOG_CONTENT_DIR="${{ github.workspace }}/${{ env.DEFAULT_BLOG_CONTENT_DIR }}"
+          fi
+          if [ ! -d "$BLOG_CONTENT_DIR" ]; then
+            echo "Blog content directory not found: $BLOG_CONTENT_DIR"
+            exit 1
+          fi
+          echo "blog_content_dir=$BLOG_CONTENT_DIR" >> "$GITHUB_OUTPUT"
       - name: Build with Astro
         run: |
           BASE_PATH="${{ steps.pages.outputs.base_path }}"
@@ -85,6 +108,8 @@ jobs:
             --site "${{ steps.pages.outputs.origin }}" \
             --base "$BASE_PATH"
         working-directory: ${{ env.BUILD_PATH }}
+        env:
+          BLOG_CONTENT_DIR: ${{ steps.resolve-blog-content.outputs.blog_content_dir }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
