@@ -31,7 +31,7 @@ concurrency:
 env:
   BUILD_PATH: "." # default value when not using subfolders
   DEFAULT_BLOG_CONTENT_DIR: "./src/content/blog"
-  custom_repo : ${{ vars.CUSTOM_CONTENT_REPO }}
+  # custom_repo : ${{ vars.CUSTOM_CONTENT_REPO }}
   # BUILD_PATH: subfolder
 
 jobs:
@@ -49,6 +49,7 @@ jobs:
             echo "command=install" >> $GITHUB_OUTPUT
             echo "runner=yarn" >> $GITHUB_OUTPUT
             echo "lockfile=yarn.lock" >> $GITHUB_OUTPUT
+            echo "repo: ${{ vars.CUSTOM_CONTENT_REPO }}"
             exit 0
           elif [ -f "${{ github.workspace }}/package.json" ]; then
             echo "manager=npm" >> $GITHUB_OUTPUT
