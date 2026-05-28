@@ -79,7 +79,8 @@ BLOG_CONTENT_DIR=/absolute/path/to/custom-blog-content npm run build
 
 The Pages workflow can optionally pull blog content from a private repo:
 
-- Repository variable `BLOG_CONTENT_REPO` (format: `owner/repo`)
+- Repository variable `CUSTOM_CONTENT_REPO` (preferred, format: `owner/repo`)
+- Legacy repository variable `BLOG_CONTENT_REPO` is also accepted for compatibility
 - Optional repository variable `CUSTOM_CONTENT_REPO_REF` (branch/tag/SHA)
 - Repository secret `CUSTOM_CONTENT_REPO_TOKEN` (PAT or deploy token with read access to the private content repo)
 

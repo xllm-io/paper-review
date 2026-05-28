@@ -31,7 +31,9 @@ concurrency:
 env:
   BUILD_PATH: "." # default value when not using subfolders
   DEFAULT_BLOG_CONTENT_DIR: "./src/content/blog"
-  custom_repo : ${{ vars.CUSTOM_CONTENT_REPO }}
+  CUSTOM_CONTENT_REPO: ${{ vars.CUSTOM_CONTENT_REPO || vars.BLOG_CONTENT_REPO }}
+  CUSTOM_CONTENT_REPO_REF: ${{ vars.CUSTOM_CONTENT_REPO_REF }}
+  CUSTOM_CONTENT_REPO_TOKEN: ${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}
   # BUILD_PATH: subfolder
 
 jobs:
@@ -78,21 +80,20 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout private blog content
-        env:
-          custom_token: ${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}
-        if: ${{ vars.CUSTOM_CONTENT_REPO != '' && env.custom_token != '' }}
+        if: ${{ env.CUSTOM_CONTENT_REPO != '' && env.CUSTOM_CONTENT_REPO_TOKEN != '' }}
         uses: actions/checkout@v6
         with:
-          repository: ${{ vars.CUSTOM_CONTENT_REPO }}
-          token: ${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}
+          repository: ${{ env.CUSTOM_CONTENT_REPO }}
+          token: ${{ env.CUSTOM_CONTENT_REPO_TOKEN }}
+          ref: ${{ env.CUSTOM_CONTENT_REPO_REF }}
           path: papers
       - name: Resolve blog content directory
         id: resolve-blog-content
         run: |
-          ss="${{ env.custom_repo }}"
+          ss="${{ env.CUSTOM_CONTENT_REPO }}"
           build_path="${{ env.DEFAULT_BLOG_CONTENT_DIR }}"
           echo "xxx $ss, $build_path"
-          if [[ -n "${{ env.custom_repo }}" ]]; then
+          if [[ -n "${{ env.CUSTOM_CONTENT_REPO }}" ]]; then
             BLOG_CONTENT_DIR="${{ github.workspace }}/papers/docs"
           else
             BLOG_CONTENT_DIR="${{ github.workspace }}/${{ env.DEFAULT_BLOG_CONTENT_DIR }}"
