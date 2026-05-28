@@ -76,22 +76,16 @@ jobs:
         working-directory: ${{ env.BUILD_PATH }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Show Info
-        id: show-info
-        run: |
-          echo "${{ vars.CUSTOM_CONTENT_REPO }}"
-          echo "${{ secrets.CUSTOM_CONTENT_REPO_TOKEN }}"
       - name: Checkout private blog content
         uses: actions/checkout@v6
         with:
-          repository: xllm-io/papers
+          repository: ${{ secrets.CUSTOM_CONTENT_REPO }}
           token: ${{ secrets.PAT_TOKEN }}
           path: papers
       - name: Resolve blog content directory
         id: resolve-blog-content
         run: |
-          REPO_PATH="xllm-io/papers"
-          if [[ -n "${REPO_PATH}" ]]; then
+          if [[ -n "${{ secrets.CUSTOM_CONTENT_REPO }}" ]]; then
             BLOG_CONTENT_DIR="${{ github.workspace }}/papers/docs"
           else
             BLOG_CONTENT_DIR="${{ github.workspace }}/${{ env.DEFAULT_BLOG_CONTENT_DIR }}"
