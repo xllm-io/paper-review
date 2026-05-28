@@ -31,6 +31,7 @@ concurrency:
 env:
   BUILD_PATH: "." # default value when not using subfolders
   DEFAULT_BLOG_CONTENT_DIR: "./src/content/blog"
+  custom_repo : ${{ vars.CUSTOM_CONTENT_REPO }}
   # BUILD_PATH: subfolder
 
 jobs:
@@ -86,8 +87,6 @@ jobs:
           path: papers
       - name: Resolve blog content directory
         id: resolve-blog-content
-        env:
-          custom_repo: ${{ vars.CUSTOM_CONTENT_REPO }}
         run: |
           ss="${{ env.custom_repo }}"
           build_path="${{ env.DEFAULT_BLOG_CONTENT_DIR }}"
