@@ -89,12 +89,12 @@ jobs:
         env:
           custom_repo: ${{ vars.CUSTOM_CONTENT_REPO }}
         run: |
-          if [ -n "${{ env.custom_repo }}" ]; then
+          if [[ -n "${{ env.custom_repo }}" ]]; then
             BLOG_CONTENT_DIR="${{ github.workspace }}/papers/docs"
           else
             BLOG_CONTENT_DIR="${{ github.workspace }}/${{ env.DEFAULT_BLOG_CONTENT_DIR }}"
           fi
-          if [ ! -d "$BLOG_CONTENT_DIR" ]; then
+          if [[ ! -d "$BLOG_CONTENT_DIR" ]]; then
             echo "Blog content directory not found: $BLOG_CONTENT_DIR"
             exit 1
           fi
