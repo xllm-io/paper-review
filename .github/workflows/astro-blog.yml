@@ -76,22 +76,17 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout private blog content
-        if: ${{ vars.BLOG_CONTENT_REPO != '' && secrets.BLOG_CONTENT_REPO_TOKEN != '' }}
+        if: ${{ vars.BLOG_CONTENT_REPO != '' && secrets.PRIVATE_REPO_TOKEN != '' }}
         uses: actions/checkout@v6
         with:
-          repository: ${{ vars.BLOG_CONTENT_REPO }}
-          ref: ${{ vars.BLOG_CONTENT_REPO_REF }}
-          token: ${{ secrets.BLOG_CONTENT_REPO_TOKEN }}
-          path: private-blog-content
+          repository: xllm-io/papers
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          path: papers
       - name: Resolve blog content directory
         id: resolve-blog-content
         run: |
-          if [ -n "${{ vars.BLOG_CONTENT_REPO }}" ] && [ -n "${{ secrets.BLOG_CONTENT_REPO_TOKEN }}" ]; then
-            REPO_PATH="${{ vars.BLOG_CONTENT_REPO_PATH }}"
-            if [ -z "$REPO_PATH" ]; then
-              REPO_PATH="."
-            fi
-            BLOG_CONTENT_DIR="${{ github.workspace }}/private-blog-content/${REPO_PATH}"
+          if [ -n "${{ vars.BLOG_CONTENT_REPO }}" ]; then
+            BLOG_CONTENT_DIR="${{ github.workspace }}/papers/docs"
           else
             BLOG_CONTENT_DIR="${{ github.workspace }}/${{ env.DEFAULT_BLOG_CONTENT_DIR }}"
           fi
